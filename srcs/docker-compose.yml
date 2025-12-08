@@ -1,19 +1,67 @@
-version: "3.8"
-
 services:
-	mariadb:
-		build:
-			context: ./requirements/mariadb
-		image: local/mariadb:bookworm
-		container_name: mariadb
-		restart: unless-stopped
-		env_file:
-			- ../.env
-		volumes:
-			- mariadb_data:/var/lib/mysql
-			- ../secrets:/secrets:ro
-		ports:
-			- "3306:3306"
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    image: mariadb:inception
+    container_name: mariadb
+    restart: always
+    env_file:
+      - ../.env
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ../secrets:/secrets:ro
+    networks:
+      - inception
+    # No exposed ports - internal communication only
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    image: wordpress:inception
+    container_name: wordpress
+    restart: always
+    depends_on:
+      - mariadb
+    env_file:
+      - ../.env
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    # No exposed ports - communication through nginx only
+
+  nginx:
+    build:
+      context: ./requirements/nginx
+    image: nginx:inception
+    container_name: nginx
+    restart: always
+    depends_on:
+      - wordpress
+    env_file:
+      - ../.env
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    networks:
+      - inception
+    ports:
+      - "443:443"
 
 volumes:
-	mariadb_data:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ntodisoa/data/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ntodisoa/data/wordpress
+
+networks:
+  inception:
+    name: inception
+    driver: bridge

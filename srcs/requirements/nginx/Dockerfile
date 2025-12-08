@@ -1,27 +1,31 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y nginx && \
-    apt-get install -y tini && \
-    apt-get install -y openssl && \
-    rm -rf /var/lib/apt/lists/*
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        nginx \
+        openssl \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /var/log/nginx /var/cache/nginx /etc/nginx/ssl /etc/nginx/sites-available /etc/nginx/sites-enabled && \
+    rm -f /etc/nginx/sites-enabled/default
 
-RUN rm /etc/nginx/sites-enabled/default
+# Copier les fichiers de configuration
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/default.conf /etc/nginx/sites-available/default
 
-COPY ./conf/default.conf    /etc/nginx/sites-available/ntodisoa.conf
+# Générer certificats SSL
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/ssl/nginx.key \
+    -out /etc/nginx/ssl/nginx.crt \
+    -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=ntodisoa/CN=ntodisoa.42.fr" && \
+    chmod 600 /etc/nginx/ssl/nginx.key && \
+    chmod 644 /etc/nginx/ssl/nginx.crt
 
-RUN mkdir -p /etc/nginx/ssl/
-
-RUN openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=MG/ST=Antananarivo/L=Antananarivo/O=42/OU=ntodisoa/CN=ntodisoa.42.fr/"
-
-COPY ./conf/index.html    /var/www/html/index.html
-
-RUN ln -s /etc/nginx/sites-available/ntodisoa.conf /etc/nginx/sites-enabled/ntodisoa.conf
+# Activer la configuration
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 EXPOSE 443
 
 STOPSIGNAL SIGQUIT
 
-ENTRYPOINT ["/usr/bin/tini", "--", "nginx"]
-
-CMD [ "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
