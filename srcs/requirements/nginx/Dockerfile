@@ -1,31 +1,24 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        nginx \
-        openssl \
-        ca-certificates && \
+    apt-get install -y --no-install-recommends nginx openssl && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /var/log/nginx /var/cache/nginx /etc/nginx/ssl /etc/nginx/sites-available /etc/nginx/sites-enabled && \
+    mkdir -p /etc/nginx/ssl && \
     rm -f /etc/nginx/sites-enabled/default
 
 # Copier les fichiers de configuration
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY conf/default.conf /etc/nginx/sites-available/default
 
-# Générer certificats SSL
+# Générer certificat SSL
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
-    -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=ntodisoa/CN=ntodisoa.42.fr" && \
-    chmod 600 /etc/nginx/ssl/nginx.key && \
-    chmod 644 /etc/nginx/ssl/nginx.crt
+    -subj "/CN=ntodisoa.42.fr"
 
 # Activer la configuration
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 EXPOSE 443
-
-STOPSIGNAL SIGQUIT
 
 CMD ["nginx", "-g", "daemon off;"]

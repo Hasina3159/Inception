@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   mariadb:
     build:
@@ -12,7 +14,6 @@ services:
       - ../secrets:/secrets:ro
     networks:
       - inception
-    # No exposed ports - internal communication only
 
   wordpress:
     build:
@@ -26,9 +27,9 @@ services:
       - ../.env
     volumes:
       - wordpress_data:/var/www/html
+      - ../secrets:/secrets:ro
     networks:
       - inception
-    # No exposed ports - communication through nginx only
 
   nginx:
     build:
@@ -53,13 +54,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/ntodisoa/data/mariadb
+      device: /home/mira/data/mariadb
   wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/ntodisoa/data/wordpress
+      device: /home/mira/data/wordpress
 
 networks:
   inception:

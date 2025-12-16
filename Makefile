@@ -3,7 +3,7 @@
 .PHONY: all build up down clean fclean re logs status setup-volumes
 
 # Variables
-DATA_DIR = /home/ntodisoa/data
+DATA_DIR = /home/mira/data
 MARIADB_DATA_DIR = $(DATA_DIR)/mariadb
 WORDPRESS_DATA_DIR = $(DATA_DIR)/wordpress
 
