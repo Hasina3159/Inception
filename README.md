@@ -1,137 +1,97 @@
-# Inception Project
+*This project has been created as part of the 42 curriculum by ntodisoa.*
+
+# Inception
 
 ## Description
 
-This project involves setting up a small infrastructure composed of different services under specific rules using Docker Compose. The infrastructure includes:
+This project sets up a complete Docker infrastructure for hosting a WordPress website. The goal is to virtualize multiple interconnected services, each runing in its own dedicated container.
 
-- **NGINX** with TLSv1.2/TLSv1.3 only (port 443)
-- **WordPress** with php-fpm (no nginx)
-- **MariaDB** (no nginx)
-- **Volumes** for WordPress database and website files
-- **Docker network** for container communication
+The infrastructure includes:
+- **NGINX**: Entry point configurated with TLSv1.3 and self-signed SSL certificate
+- **WordPress + php-fpm**: Installed and configured with WP-CLI, including admin and author users
+- **MariaDB**: Database for WordPress, automatically initialized
 
-## Architecture
+## Instructions
 
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    NGINX    │───▶│  WordPress  │───▶│   MariaDB   │
-│   (HTTPS)   │    │  (PHP-FPM)  │    │ (Database)  │
-└─────────────┘    └─────────────┘    └─────────────┘
-      :443              :9000              :3306
-```
+### Compilation and Execution
 
-## Requirements Met
-
-✅ Docker Compose infrastructure  
-✅ Each service in dedicated container  
-✅ Built from Debian Bookworm Slim  
-✅ Custom Dockerfiles (no pulling from DockerHub except base images)  
-✅ NGINX with TLSv1.2/TLSv1.3 only  
-✅ WordPress with PHP-FPM (no nginx)  
-✅ MariaDB only (no nginx)  
-✅ Persistent volumes for database and WordPress files  
-✅ Docker network for container communication  
-✅ Automatic restart on crash  
-✅ No hacky patches (tail -f, sleep infinity, etc.)  
-✅ Two WordPress users (admin without 'admin' in username)  
-✅ Volumes mounted to /home/ntodisoa/data  
-✅ Domain name ntodisoa.42.fr pointing to local IP  
-✅ No passwords in Dockerfiles  
-✅ Environment variables and secrets  
-✅ NGINX as sole entry point on port 443  
-
-## Setup Instructions
-
-### 1. Add Domain to Hosts File
-```bash
-make add-host
-```
-Or manually add to `/etc/hosts`:
-```
-127.0.0.1 ntodisoa.42.fr
-```
-
-### 2. Build and Start Infrastructure
-```bash
-make all
-```
-
-### 3. Access the Website
-Open your browser and go to: `https://ntodisoa.42.fr`
-
-**Note**: You'll see a SSL warning (self-signed certificate) - this is expected.
-
-## Available Commands
+All configuration files are in the `srcs/` folder. The project is managed by a Makefile at the root:
 
 ```bash
-# Build and start everything
-make all
-
-# Build images only
-make build
-
-# Start services
-make up
-
-# Stop services
-make down
-
-# Clean containers and networks
-make clean
-
-# Full clean (remove everything)
-make fclean
-
-# Rebuild from scratch
-make re
-
-# View logs
-make logs
-
-# Check status
-make status
-
-# Individual services
-make mariadb
-make wordpress
-make nginx
-
-# Shell access
-make mariadb-shell
-make wordpress-shell
-make nginx-shell
-
-# Test database
-make test-db
+make        # Build and start infrastructure
+make down   # Stop services
+make fclean # Complete cleanup (removes everything)
+make re     # Rebuild all
 ```
 
-## WordPress Users
+### Configuration
 
-The setup creates two WordPress users:
+Copy and edit the `.env` file:
+```bash
+cp .env.example .env
+```
 
-1. **Administrator**: `ntodisoa` (site owner)
-2. **Author**: `user42` (regular user)
+Add the domain to `/etc/hosts`:
+```bash
+echo "127.0.0.1 ntodisoa.42.fr" | sudo tee -a /etc/hosts
+```
 
-Passwords are defined in the `.env` file.
+### Access
 
-## Data Persistence
+- Website: https://ntodisoa.42.fr
+- Admin: `admin` / `petera123`
+- Author: `author` / `lambda123`
 
-Data is stored in:
-- `/home/ntodisoa/data/mariadb` - Database files
-- `/home/ntodisoa/data/wordpress` - WordPress files
+## Design Choices & Comparisons
 
-## Security Features
+### Virtual Machines vs Docker
 
-- TLS 1.2/1.3 encryption
-- No exposed database ports
-- Internal docker network communication
-- Security headers in NGINX
-- No passwords in Dockerfiles
-- Environment variable configuration
+Docker containers share the host kernel for better efficiency, while VMs virtualize complete hardware. Containers are more lighter and start faster.
 
-## Troubleshooting
+### Secrets vs Environment Variables
 
-1. **Port 443 already in use**: Stop any other web servers
-2. **Permission denied on data folders**: Check folder permissions
-3. **SSL certificate errors**: Expected for self-signed certificates
-4. **Database connection errors**: Check if all containers are running with `make status`
+This project uses environment variables via a `.env` file for simplicity. All credentials are centralized in one file, avoiding hardcoded values in Dockerfiles or scripts.
+
+### Docker Network vs Host Network
+
+Using `network: host` is forbidden. An isolated bridge network (`inception`) ensures that only necessary services communicate via their service names.
+
+### Docker Volumes vs Bind Mounts
+
+Bind mounts to `/home/mira/data/mariadb` and `/home/mira/data/wordpress` allows explicit persistence and direct access to files from the host.
+
+## Resources
+
+### Documentation
+
+- [Docker Documentation](https://docs.docker.com/)
+- [Debian Bookworm](https://www.debian.org/releases/bookworm/)
+- [WordPress CLI](https://wp-cli.org/)
+- [MariaDB Documentation](https://mariadb.org/documentation/)
+- [Nginx TLS Configuration](https://nginx.org/en/docs/http/configuring_https_servers.html)
+
+### AI Usage
+
+**Tasks performed**:
+- help with nginx configuration syntax (TLSv1.3)
+- help with bash initialization scripts creation (`init_db.sh`, `init_wordpress.sh`)
+- Debugging permission and DNS resolution issues
+- help with `docker-compose.yml` generation with volumes and network
+- help with redaction and traduction of .md files in english and building a better makefile
+
+**Project parts concerned**:
+- NGINX configuration with TLSv1.3 and self-signed certificate
+- MariaDB entry scripts with automatic database initialization
+- WordPress script with WP-CLI for installation and user creation
+- PHP-FPM (www.conf) and MariaDB (server.cnf) configurations
+- Makefile for build and clean automation
+- Network issues resolution (DNS Docker, service connectivity)
+
+**Verification**:
+Each code segment has been:
+- Tested in real conditions with `docker compose up`
+- Debugged via Docker logs (`docker compose logs`)
+- Reviewed and adapted to 42 project constraints
+- Functionally validated (HTTPS connection, WordPress posts, comment moderation)
+
+The complete logic of the infrastructure (Docker network, volumes, init scripts, SSL certificates) is fully understood and mastered by the author.
