@@ -26,8 +26,10 @@ wait_for_db
 
 # Download WordPress if not already present
 if [ ! -f /var/www/html/wp-config.php ]; then
-    echo "Downloading WordPress..."
-    wp core download --allow-root --path=/var/www/html
+    if [ ! -f /var/www/html/wp-login.php ]; then
+        echo "Downloading WordPress..."
+        wp core download --allow-root --path=/var/www/html
+    fi
     
     echo "Creating wp-config.php..."
     wp config create \

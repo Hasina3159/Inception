@@ -8,15 +8,16 @@ RUN apt-get update && \
         php8.2-gd \
         php8.2-xml \
         php8.2-mbstring \
-        curl && \
+        wget \
+        ca-certificates && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /var/www/html /run/php && \
-    chown -R www-data:www-data /var/www/html /run/php
+    chown -R www-data:www-data /var/www/html /run/php && \
+    sed -i 's/^error_log = .*/error_log = \/proc\/self\/fd\/2/' /etc/php/8.2/fpm/php-fpm.conf
 
 # Télécharger WP-CLI
-RUN curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.8.1/php/wp-cli.phar && \
-    chmod +x wp-cli.phar && \
-    mv wp-cli.phar /usr/local/bin/wp
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp && \
+    chmod +x /usr/local/bin/wp
 
 # Copier configuration
 COPY tools/init_wordpress.sh /usr/local/bin/init_wordpress.sh

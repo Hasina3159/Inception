@@ -3,27 +3,24 @@ set -euo pipefail
 
 : "${MARIADB_DATABASE:=wordpress}"
 : "${MARIADB_USER:=wp_user}"
-: "${MARIADB_PASSWORD:=}"
-: "${MARIADB_ROOT_PASSWORD:=}"
-
-read_secret() {
-  for dir in "/run/secrets" "/secrets"; do
-    [ -r "$dir/$1" ] && cat "$dir/$1" && return 0
-  done
-  return 1
-}
-
-[ -z "$MARIADB_ROOT_PASSWORD" ] && MARIADB_ROOT_PASSWORD="$(read_secret db_root_password.txt || true)"
-[ -z "$MARIADB_PASSWORD" ] && MARIADB_PASSWORD="$(read_secret db_password.txt || true)"
+: "${MARIADB_PASSWORD:?MARIADB_PASSWORD required}"
+: "${MARIADB_ROOT_PASSWORD:?MARIADB_ROOT_PASSWORD required}"
 
 mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 
-if [ -z "$(ls -A /var/lib/mysql 2>/dev/null || true)" ]; then
+# Initialize if mysql system DB doesn't exist
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+  echo "[INIT] Initializing MariaDB system database"
   chown -R mysql:mysql /var/lib/mysql
   mysql_install_db --user=mysql --datadir=/var/lib/mysql
+fi
 
-  mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking --socket=/run/mysqld/mysqld.sock &
+# Check if wordpress database exists
+if [ ! -d "/var/lib/mysql/$MARIADB_DATABASE" ]; then
+  echo "[INIT] Database '$MARIADB_DATABASE' not found, running setup"
+  
+  mysqld --user=mysql --skip-networking --socket=/run/mysqld/mysqld.sock &
   pid=$!
 
   for i in {1..30}; do
@@ -31,9 +28,7 @@ if [ -z "$(ls -A /var/lib/mysql 2>/dev/null || true)" ]; then
     sleep 1
   done
 
-  [ -z "$MARIADB_ROOT_PASSWORD" ] && echo "ERROR: MARIADB_ROOT_PASSWORD required" >&2 && exit 1
-  [ -z "$MARIADB_PASSWORD" ] && echo "ERROR: MARIADB_PASSWORD required" >&2 && exit 1
-
+  echo "[INIT] Securing and creating database/user"
   mariadb --socket=/run/mysqld/mysqld.sock <<-SQL
     ALTER USER 'root'@'localhost' IDENTIFIED BY '${MARIADB_ROOT_PASSWORD}';
     DELETE FROM mysql.user WHERE User='';
@@ -44,8 +39,11 @@ if [ -z "$(ls -A /var/lib/mysql 2>/dev/null || true)" ]; then
     FLUSH PRIVILEGES;
 SQL
 
+  echo "[INIT] Shutting down bootstrap server"
   mariadb-admin --socket=/run/mysqld/mysqld.sock shutdown
   wait "$pid"
+  echo "[INIT] Initialization complete"
 fi
 
+echo "[MAIN] Starting MariaDB server"
 exec mysqld --user=mysql --bind-address=0.0.0.0
