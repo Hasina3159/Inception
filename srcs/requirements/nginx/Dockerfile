@@ -7,7 +7,6 @@ RUN apt-get update && \
     rm -f /etc/nginx/sites-enabled/default
 
 # Copier les fichiers de configuration
-COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY conf/default.conf /etc/nginx/sites-available/default
 
 # Générer certificat SSL

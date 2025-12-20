@@ -28,6 +28,4 @@ WORKDIR /var/www/html
 
 EXPOSE 9000
 
-USER www-data
-
 CMD ["/usr/local/bin/init_wordpress.sh"]
