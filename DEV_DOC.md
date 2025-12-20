@@ -13,14 +13,11 @@
 
 1. Clone repository:
 ```bash
-git clone git@github.com:Hasina3159/Inception.git
+git clone <your-repository-url>
 cd Inception
 ```
 
-2. Create `.env` from template:
-```bash
-cp .env.example .env
-```
+2. Create and configure `.env` file with all required credentials (see `.env` template in project)
 
 3. Configure domain:
 ```bash
@@ -29,7 +26,7 @@ echo "127.0.0.1 ntodisoa.42.fr" | sudo tee -a /etc/hosts
 
 4. Create data directories:
 ```bash
-mkdir -p /home/mira/data/wordpress /home/mira/data/mariadb
+mkdir -p /home/ntodisoa/data/wordpress /home/ntodisoa/data/mariadb
 ```
 
 ## Build and Launch with Makefile and Docker Compose
@@ -87,16 +84,16 @@ docker volume inspect srcs_mariadb_data
 docker volume inspect srcs_wordpress_data
 
 # Access data directly (bind mounts)
-ls -la /home/mira/data/mariadb/
-ls -la /home/mira/data/wordpress/
+ls -la /home/ntodisoa/data/mariadb/
+ls -la /home/ntodisoa/data/wordpress/
 ```
 
 ## Data Storage and Persistence
 
 ### Storage Locations
 
-- **MariaDB data**: `/home/mira/data/mariadb/` (bind mount from `/var/lib/mysql`)
-- **WordPress files**: `/home/mira/data/wordpress/` (bind mount from `/var/www/html`)
+- **MariaDB data**: `/home/ntodisoa/data/mariadb/` (bind mount from `/var/lib/mysql`)
+- **WordPress files**: `/home/ntodisoa/data/wordpress/` (bind mount from `/var/www/html`)
 
 ### How Data Persists
 

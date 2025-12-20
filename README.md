@@ -4,10 +4,10 @@
 
 ## Description
 
-This project sets up a complete Docker infrastructure for hosting a WordPress website. The goal is to virtualize multiple interconnected services, each runing in its own dedicated container.
+This project sets up a complete Docker infrastructure for hosting a WordPress website. The goal is to virtualize multiple interconnected services, each running in its own dedicated container.
 
 The infrastructure includes:
-- **NGINX**: Entry point configurated with TLSv1.3 and self-signed SSL certificate
+- **NGINX**: Entry point configured with TLSv1.3 and self-signed SSL certificate
 - **WordPress + php-fpm**: Installed and configured with WP-CLI, including admin and author users
 - **MariaDB**: Database for WordPress, automatically initialized
 
@@ -39,8 +39,8 @@ echo "127.0.0.1 ntodisoa.42.fr" | sudo tee -a /etc/hosts
 ### Access
 
 - Website: https://ntodisoa.42.fr
-- Admin: `admin` / `petera123`
-- Author: `author` / `lambda123`
+- Admin: `petera` / `petera123`
+- Author: `mpamorona` / `mpamorona123`
 
 ## Design Choices & Comparisons
 
@@ -54,20 +54,22 @@ This project uses environment variables via a `.env` file for simplicity. All cr
 
 ### Docker Network vs Host Network
 
-Using `network: host` is forbidden. An isolated bridge network (`inception`) ensures that only necessary services communicate via their service names.
+The project uses a custom bridge network (`inception`) instead of host network mode. This provides better isolation and security by ensuring containers can only communicate through defined network connections using service names as DNS.
 
 ### Docker Volumes vs Bind Mounts
 
-Bind mounts to `/home/mira/data/mariadb` and `/home/mira/data/wordpress` allows explicit persistence and direct access to files from the host.
+This project uses bind mounts to `/home/ntodisoa/data/mariadb` and `/home/ntodisoa/data/wordpress`. Bind mounts allow explicit control over persistence locations and direct access to files from the host, while Docker volumes are managed by Docker's storage system. Bind mounts are preferred here for easier backup and data inspection.
 
 ## Resources
 
 ### Documentation
 
-- [Docker Documentation](https://docs.docker.com/)
+- [Docker Documentation](https://docs.docker.com/get-started/)
+- [Débuter de zéro avec Docker](https://www.youtube.com/playlist?list=PL8SZiccjllt1jz9DsD4MPYbbiGOR_FYHu)
 - [Debian Bookworm](https://www.debian.org/releases/bookworm/)
 - [WordPress CLI](https://wp-cli.org/)
-- [MariaDB Documentation](https://mariadb.org/documentation/)
+- [How to Install Wordpress With Nginx on Debian 10 VPS](https://www.youtube.com/watch?v=0eQiiUZ66lE)
+- [MySQL and MariaDB Tutorials](https://www.youtube.com/playlist?list=PLiHa1s-EL3vglMHsrjD2lQ6LfFWk7KHyF)
 - [Nginx TLS Configuration](https://nginx.org/en/docs/http/configuring_https_servers.html)
 
 ### AI Usage
@@ -77,7 +79,7 @@ Bind mounts to `/home/mira/data/mariadb` and `/home/mira/data/wordpress` allows 
 - help with bash initialization scripts creation (`init_db.sh`, `init_wordpress.sh`)
 - Debugging permission and DNS resolution issues
 - help with `docker-compose.yml` generation with volumes and network
-- help with redaction and traduction of .md files in english and building a better makefile
+- Help with redaction and translation of .md files in English and building a better Makefile
 
 **Project parts concerned**:
 - NGINX configuration with TLSv1.3 and self-signed certificate

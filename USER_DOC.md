@@ -38,13 +38,13 @@ make fclean
 ### Administration Panel
 
 - Admin URL: https://ntodisoa.42.fr/wp-admin
-- Admin username: `admin`
+- Admin username: `petera`
 - Admin password: `petera123`
 
 ### User Accounts
 
-- **Administrator**: `admin` / `petera123` (can approve comments)
-- **Author**: `author` / `lambda123` (can write posts only)
+- **Administrator**: `petera` / `petera123` (can approve comments)
+- **Author**: `mpamorona` / `mpamorona123` (can write posts only)
 
 ## Locate and Manage Credentials
 
@@ -58,8 +58,8 @@ All credentials are in the `.env` file at the project root.
 |---------|----------|-------------------|---------------|
 | MariaDB Root | root | `MARIADB_ROOT_PASSWORD` | rootpassword123 |
 | MariaDB User | wp_user | `MARIADB_PASSWORD` | wppassword123 |
-| WordPress Admin | admin | `WORDPRESS_SITE_OWNER_PASSWORD` | petera123 |
-| WordPress Author | author | `WORDPRESS_USER_PASSWORD` | lambda123 |
+| WordPress Admin | petera | `WORDPRESS_SITE_OWNER_PASSWORD` | petera123 |
+| WordPress Author | mpamorona | `WORDPRESS_USER_PASSWORD` | mpamorona123 |
 
 ### Change Credentials
 

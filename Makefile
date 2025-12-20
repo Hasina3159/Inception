@@ -1,10 +1,10 @@
 .PHONY: all build up down clean fclean re logs status setup-volumes
 
-DATA_DIR = /home/mira/data
+DATA_DIR = /home/ntodisoa/data
 MARIADB_DATA_DIR = $(DATA_DIR)/mariadb
 WORDPRESS_DATA_DIR = $(DATA_DIR)/wordpress
 
-all: setup-volumes build up
+all: build up
 
 setup-volumes:
 	@echo "Creating data directories..."
@@ -16,7 +16,7 @@ build:
 	@echo "Building Docker images..."
 	cd srcs && docker compose build --no-cache
 
-up:
+up: setup-volumes
 	@echo "Starting services..."
 	cd srcs && docker compose up -d
 
