@@ -39,6 +39,7 @@ echo "127.0.0.1 ntodisoa.42.fr" | sudo tee -a /etc/hosts
 ### Access
 
 - Website: https://ntodisoa.42.fr
+- Admin panel : https://ntodisoa.42.fr/wp-admin
 - Admin: `petera` / `petera123`
 - Author: `mpamorona` / `mpamorona123`
 
@@ -51,6 +52,39 @@ Docker containers share the host kernel for better efficiency, while VMs virtual
 ### Secrets vs Environment Variables
 
 This project uses environment variables via a `.env` file for simplicity. All credentials are centralized in one file, avoiding hardcoded values in Dockerfiles or scripts.
+
+### Secrets (.env example)
+
+Below is an example `.env` content used by the stack. Adjust values as needed and keep this file private.
+
+```dotenv
+# MariaDB Configuration
+MARIADB_DATABASE=wordpress
+MARIADB_USER=wp_user
+MARIADB_PASSWORD=wppassword123
+MARIADB_ROOT_PASSWORD=rootpassword123
+
+# WordPress Database Connection
+WORDPRESS_DB_HOST=mariadb
+WORDPRESS_DB_NAME=wordpress
+WORDPRESS_DB_USER=wp_user
+WORDPRESS_DB_PASSWORD=wppassword123
+WORDPRESS_TABLE_PREFIX=wp_
+
+# WordPress Site Configuration
+WORDPRESS_URL=https://ntodisoa.42.fr
+WORDPRESS_TITLE=Inception_petera
+
+# WordPress Admin Account (can approve comments, manage site)
+WORDPRESS_SITE_OWNER=petera
+WORDPRESS_SITE_OWNER_PASSWORD=petera123
+WORDPRESS_SITE_OWNER_EMAIL=petera@petera.42.fr
+
+# WordPress Author Account (can write posts but NOT approve comments)
+WORDPRESS_USER=mpamorona
+WORDPRESS_USER_EMAIL=mpamorona@mpamorona.42.fr
+WORDPRESS_USER_PASSWORD=mpamorona123
+```
 
 ### Docker Network vs Host Network
 
@@ -76,7 +110,7 @@ This project uses bind mounts to `/home/ntodisoa/data/mariadb` and `/home/ntodis
 
 **Tasks performed**:
 - help with nginx configuration syntax (TLSv1.3)
-- help with bash initialization scripts creation (`init_db.sh`, `init_wordpress.sh`)
+- help with bash initialization scripts creation 
 - Debugging permission and DNS resolution issues
 - help with `docker-compose.yml` generation with volumes and network
 - Help with redaction and translation of .md files in English and building a better Makefile
