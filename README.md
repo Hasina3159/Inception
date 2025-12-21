@@ -26,9 +26,35 @@ make re     # Rebuild all
 
 ### Configuration
 
-Copy and edit the `.env` file:
-```bash
-cp .env.example .env
+Below is an example `.env` content used by the stack. Adjust values as needed and keep this file private:
+
+```dotenv
+# MariaDB Configuration
+MARIADB_DATABASE=wordpress
+MARIADB_USER=wp_user
+MARIADB_PASSWORD=wppassword123
+MARIADB_ROOT_PASSWORD=rootpassword.123
+
+# WordPress Database Connection
+WORDPRESS_DB_HOST=mariadb
+WORDPRESS_DB_NAME=wordpress
+WORDPRESS_DB_USER=wp_user
+WORDPRESS_DB_PASSWORD=wppassword.123
+WORDPRESS_TABLE_PREFIX=wp_
+
+# WordPress Site Configuration
+WORDPRESS_URL=https://ntodisoa.42.fr
+WORDPRESS_TITLE=Inception_petera
+
+# WordPress Admin Account (can approve comments, manage site)
+WORDPRESS_SITE_OWNER=petera
+WORDPRESS_SITE_OWNER_PASSWORD=petera.123
+WORDPRESS_SITE_OWNER_EMAIL=petera@petera.42.fr
+
+# WordPress Author Account (can write posts but NOT approve comments)
+WORDPRESS_USER=mpamorona
+WORDPRESS_USER_EMAIL=mpamorona@mpamorona.42.fr
+WORDPRESS_USER_PASSWORD=mpamorona.123
 ```
 
 Add the domain to `/etc/hosts`:
@@ -40,59 +66,56 @@ echo "127.0.0.1 ntodisoa.42.fr" | sudo tee -a /etc/hosts
 
 - Website: https://ntodisoa.42.fr
 - Admin panel : https://ntodisoa.42.fr/wp-admin
-- Admin: `petera` / `petera123`
-- Author: `mpamorona` / `mpamorona123`
+- Admin: `your_admin_username` / `your_admin_password`
+- Author: `your_author_username` / `your_author_password`
 
 ## Design Choices & Comparisons
 
 ### Virtual Machines vs Docker
 
-Docker containers share the host kernel for better efficiency, while VMs virtualize complete hardware. Containers are more lighter and start faster.
+**Choice**: Docker containers
+
+**Justification**: Docker containers share the host kernel, making them significantly more lightweight and faster to start compared to full virtual machines. This approach reduces resource consumption while providing sufficient isolation for development and deployment environments.
+
+**Comparison**:
+- **Docker** (chosen): Lightweight, fast startup, minimal overhead, shares host kernel
+- **Virtual Machines**: Full hardware virtualization, complete isolation, higher resource usage, slower initialization
+
+---
 
 ### Secrets vs Environment Variables
 
-This project uses environment variables via a `.env` file for simplicity. All credentials are centralized in one file, avoiding hardcoded values in Dockerfiles or scripts.
+**Choice**: Environment variables via `.env` file
 
-### Secrets (.env example)
+**Justification**: All credentials and configuration values are centralized in a single `.env` file. This approach avoids hardcoding sensitive values directly in Dockerfiles or shell scripts, reducing the risk of accidentally committing secrets to version control.
 
-Below is an example `.env` content used by the stack. Adjust values as needed and keep this file private.
+**Comparison**:
+- **Environment Variables** (chosen): Simple to manage, centralized configuration, compatible with Docker Compose, reduces code clutter
+- **Secrets Management Tools** (Docker Secrets, HashiCorp Vault): More sophisticated but adds complexity not needed for this project scope
 
-```dotenv
-# MariaDB Configuration
-MARIADB_DATABASE=wordpress
-MARIADB_USER=wp_user
-MARIADB_PASSWORD=wppassword123
-MARIADB_ROOT_PASSWORD=rootpassword123
-
-# WordPress Database Connection
-WORDPRESS_DB_HOST=mariadb
-WORDPRESS_DB_NAME=wordpress
-WORDPRESS_DB_USER=wp_user
-WORDPRESS_DB_PASSWORD=wppassword123
-WORDPRESS_TABLE_PREFIX=wp_
-
-# WordPress Site Configuration
-WORDPRESS_URL=https://ntodisoa.42.fr
-WORDPRESS_TITLE=Inception_petera
-
-# WordPress Admin Account (can approve comments, manage site)
-WORDPRESS_SITE_OWNER=petera
-WORDPRESS_SITE_OWNER_PASSWORD=petera123
-WORDPRESS_SITE_OWNER_EMAIL=petera@petera.42.fr
-
-# WordPress Author Account (can write posts but NOT approve comments)
-WORDPRESS_USER=mpamorona
-WORDPRESS_USER_EMAIL=mpamorona@mpamorona.42.fr
-WORDPRESS_USER_PASSWORD=mpamorona123
-```
+---
 
 ### Docker Network vs Host Network
 
-The project uses a custom bridge network (`inception`) instead of host network mode. This provides better isolation and security by ensuring containers can only communicate through defined network connections using service names as DNS.
+**Choice**: Custom bridge network (`inception`)
+
+**Justification**: A custom bridge network provides superior isolation and security. Containers communicate exclusively through defined network connections using service names as DNS, preventing unwanted exposure to the host network and limiting attack surface.
+
+**Comparison**:
+- **Custom Bridge Network** (chosen): Better isolation, service discovery via DNS, controlled communication, enhanced security
+- **Host Network Mode**: Shared network stack with host, simpler but less isolation, potential port conflicts, security risks
+
+---
 
 ### Docker Volumes vs Bind Mounts
 
-This project uses bind mounts to `/home/ntodisoa/data/mariadb` and `/home/ntodisoa/data/wordpress`. Bind mounts allow explicit control over persistence locations and direct access to files from the host, while Docker volumes are managed by Docker's storage system. Bind mounts are preferred here for easier backup and data inspection.
+**Choice**: Bind mounts to `/home/ntodisoa/data/mariadb` and `/home/ntodisoa/data/wordpress`
+
+**Justification**: Bind mounts provide explicit control over persistence locations and allow direct file access from the host system. This enables easier data backup, inspection, and recovery without relying on Docker's internal storage abstraction.
+
+**Comparison**:
+- **Bind Mounts** (chosen): Direct host access, explicit location control, easier backup/inspection, better for development
+- **Docker Volumes**: Managed by Docker, more portable, better for production, less direct host access
 
 ## Resources
 

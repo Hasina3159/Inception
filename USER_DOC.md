@@ -38,13 +38,6 @@ make fclean
 ### Administration Panel
 
 - Admin URL: https://ntodisoa.42.fr/wp-admin
-- Admin username: `petera`
-- Admin password: `petera123`
-
-### User Accounts
-
-- **Administrator**: `petera` / `petera123` (can approve comments)
-- **Author**: `mpamorona` / `mpamorona123` (can write posts only)
 
 ## Locate and Manage Credentials
 
@@ -83,7 +76,7 @@ docker compose -f srcs/docker-compose.yml logs
 ### Check specific service
 
 ```bash
-docker logs nginx
-docker logs wordpress
-docker logs mariadb
+docker compose -f srcs/docker-compose.yml logs nginx
+docker compose -f srcs/docker-compose.yml logs wordpress
+docker compose -f srcs/docker-compose.yml logs mariadb
 ```
