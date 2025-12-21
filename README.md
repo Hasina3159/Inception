@@ -32,14 +32,14 @@ Below is an example `.env` content used by the stack. Adjust values as needed an
 # MariaDB Configuration
 MARIADB_DATABASE=wordpress
 MARIADB_USER=wp_user
-MARIADB_PASSWORD=wppassword123
-MARIADB_ROOT_PASSWORD=rootpassword.123
+MARIADB_PASSWORD=
+MARIADB_ROOT_PASSWORD=
 
 # WordPress Database Connection
 WORDPRESS_DB_HOST=mariadb
 WORDPRESS_DB_NAME=wordpress
 WORDPRESS_DB_USER=wp_user
-WORDPRESS_DB_PASSWORD=wppassword.123
+WORDPRESS_DB_PASSWORD=
 WORDPRESS_TABLE_PREFIX=wp_
 
 # WordPress Site Configuration
@@ -47,14 +47,14 @@ WORDPRESS_URL=https://ntodisoa.42.fr
 WORDPRESS_TITLE=Inception_petera
 
 # WordPress Admin Account (can approve comments, manage site)
-WORDPRESS_SITE_OWNER=petera
-WORDPRESS_SITE_OWNER_PASSWORD=petera.123
-WORDPRESS_SITE_OWNER_EMAIL=petera@petera.42.fr
+WORDPRESS_SITE_OWNER=
+WORDPRESS_SITE_OWNER_PASSWORD=
+WORDPRESS_SITE_OWNER_EMAIL=
 
 # WordPress Author Account (can write posts but NOT approve comments)
 WORDPRESS_USER=mpamorona
-WORDPRESS_USER_EMAIL=mpamorona@mpamorona.42.fr
-WORDPRESS_USER_PASSWORD=mpamorona.123
+WORDPRESS_USER_EMAIL=
+WORDPRESS_USER_PASSWORD=
 ```
 
 Add the domain to `/etc/hosts`:
